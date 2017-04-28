@@ -5,7 +5,7 @@ CPPFLAGS  =  -isystem $(SYSTEMC)/include
 CXXFLAGS  =  -Wall -g
 LDFLAGS   =  -L$(SYSTEMC)/lib-$(ARCH)
 LDLIBS    =  -lsystemc
-EXE       = hello
+EXE         = test_sc_logic
 
 all: run clean
 

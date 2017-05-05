@@ -5,12 +5,12 @@ CPPFLAGS  =  -isystem $(SYSTEMC)/include
 CXXFLAGS  =  -Wall -g
 LDFLAGS   =  -L$(SYSTEMC)/lib-$(ARCH)
 LDLIBS    =  -lsystemc
-EXE       = test_integers
+EXE       = clock
 
 all: run clean
 
 run: $(EXE)
-	./$<
+	./$< $(ARGS)
 
 clean:
 	rm -f $(EXE)

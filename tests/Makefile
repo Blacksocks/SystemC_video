@@ -5,7 +5,7 @@ CPPFLAGS  =  -isystem $(SYSTEMC)/include
 CXXFLAGS  =  -Wall -g
 LDFLAGS   =  -L$(SYSTEMC)/lib-$(ARCH)
 LDLIBS    =  -lsystemc
-EXE       = test_vectors
+EXE       = test_integers
 
 all: run clean
 

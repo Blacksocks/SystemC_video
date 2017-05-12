@@ -6,12 +6,15 @@ CPPFLAGS  =  -isystem $(SYSTEMC)/include
 CXXFLAGS  =  -Wall -g
 LDFLAGS   =  -L$(SYSTEMC)/lib-$(ARCH)
 LDLIBS    =  -lsystemc
-EXE       =  clock
+EXE       =  pixel_thread
 
 all: run clean
 
 run: $(EXE)
 	./$< $(ARGS)
+
+display: my_simu_trace.vcd
+	gtkwave $<
 
 clean:
 	rm -f $(EXE)

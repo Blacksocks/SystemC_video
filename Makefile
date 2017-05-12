@@ -1,4 +1,5 @@
-SYSTEMC   ?= /comelec/softs/opt/systemc/current
+#SYSTEMC   ?= /comelec/softs/opt/systemc/current
+SYSTEMC   ?= /usr/local
 ARCH       = linux64
 
 CPPFLAGS  =  -isystem $(SYSTEMC)/include

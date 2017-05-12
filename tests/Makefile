@@ -6,7 +6,7 @@ CPPFLAGS  =  -isystem $(SYSTEMC)/include
 CXXFLAGS  =  -Wall -g
 LDFLAGS   =  -L$(SYSTEMC)/lib-$(ARCH)
 LDLIBS    =  -lsystemc
-EXE       =  pixel_thread
+EXE       =  pixel_sum
 
 all: run clean
 

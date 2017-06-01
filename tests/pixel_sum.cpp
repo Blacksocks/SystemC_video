@@ -93,6 +93,88 @@ SC_MODULE(sum_thread)
 	}
 };
 
+// display all colors using method
+SC_MODULE(colors_method)
+{
+	sc_in<bool> clk;
+	sc_out<Pixel> p;
+
+	SC_CTOR(colors_method):clk("clk"), p("p")
+	{
+		SC_METHOD(inc_color);
+		sensitive << clk.pos();
+	}
+
+	void inc_color()
+	{
+		Pixel p_ = p;
+		if(p_.r < 31)
+			p_.r++;
+		else if(p_.g < 63)
+			p_.g++;
+		else if(p_.b < 31)
+			p_.b++;
+		p = p_;
+	}
+};
+
+// display all colors using thread
+SC_MODULE(colors_thread)
+{
+	sc_in<bool> clk;
+	sc_out<Pixel> p;
+
+	SC_CTOR(colors_thread):clk("clk"), p("p")
+	{
+		SC_THREAD(inc_color);
+		sensitive << clk.pos();
+	}
+
+	void inc_color()
+	{
+		while(1)
+		{
+			wait();
+			Pixel p_ = p;
+			if(p_.r < 31)
+				p_.r++;
+			else if(p_.g < 63)
+				p_.g++;
+			else if(p_.b < 31)
+				p_.b++;
+			p = p_;
+		}
+	}
+};
+
+// display all colors using cthread
+SC_MODULE(colors_cthread)
+{
+	sc_in<bool> clk;
+	sc_out<Pixel> p;
+
+	SC_CTOR(colors_cthread):clk("clk"), p("p")
+	{
+		SC_CTHREAD(inc_color, clk.pos());
+	}
+
+	void inc_color()
+	{
+		while(1)
+		{
+			wait();
+			Pixel p_ = p;
+			if(p_.r < 31)
+				p_.r++;
+			else if(p_.g < 63)
+				p_.g++;
+			else if(p_.b < 31)
+				p_.b++;
+			p = p_;
+		}
+	}
+};
+
 int sc_main (int argc, char * argv[])
 {
 	sc_trace_file *trace_f;
@@ -100,32 +182,43 @@ int sc_main (int argc, char * argv[])
 	trace_f->set_time_unit(1, SC_NS);
 
 	Pixel p;
-	// init des pixels 1, 2 et sum
+	// init des pixels 1, 2, 3 et sum
 	sc_signal<Pixel> sig_p1;
 	sc_trace(trace_f, sig_p1, "pixel_1");
 	sc_signal<Pixel> sig_p2;
 	sc_trace(trace_f, sig_p2, "pixel_2");
+	sc_signal<Pixel> sig_p3;
+	sc_trace(trace_f, sig_p3, "pixel_3");
 	sc_signal<Pixel> sig_pSum;
 	sc_trace(trace_f, sig_pSum, "pixel_sum");
+	// init de la clock
+	sc_clock clk("clk", 2, SC_NS);
+	sc_trace(trace_f, clk, "clk");
+
 	// creation du module de somme
 	sum_thread sum_i("sum");
 	sum_i.p1(sig_p1);
 	sum_i.p2(sig_p2);
 	sum_i.pSum(sig_pSum);
+	// creation du module d'incrementation
+	colors_cthread colors_i("colors");
+	colors_i.clk(clk);
+	colors_i.p(sig_p3);
 
 	sig_p1 = p;
 	sig_p2 = p;
-	sc_start(3, SC_NS);
-	p.r = 31;
-	p.g = 63;
-	p.b = 31;
-	sig_p1 = p;
-	sc_start(3, SC_NS);
+	sig_p3 = p;
+	sc_start(64, SC_NS);
 	p.r = 9;
 	p.g = 8;
 	p.b = 7;
+	sig_p1 = p;
+	sc_start(64, SC_NS);
+	p.r = 31;
+	p.g = 63;
+	p.b = 31;
 	sig_p2 = p;
-	sc_start(3, SC_NS);
+	sc_start(128, SC_NS);
 
 	sc_close_vcd_trace_file(trace_f);
 	return 0;

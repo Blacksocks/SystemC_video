@@ -27,7 +27,7 @@ void sc_trace(sc_trace_file* _f, const Pixel& _foo, const std::string& _s)
 	sc_trace(_f, _foo.b, _s + "_b");
 }
 
-// make sum of two pixels using thread
+// make sum of two pixels using method
 SC_MODULE(sum_method)
 {
 	sc_in<Pixel> p1;
@@ -46,8 +46,14 @@ SC_MODULE(sum_method)
 		Pixel p1_ = p1;
 		Pixel p2_ = p2;
 		pSum_.r = p1_.r + p2_.r;
+		if(p1_.r + p2_.r >= 32)
+			pSum_.r = 31;
 		pSum_.g = p1_.g + p2_.g;
+		if(p1_.g + p2_.g >= 64)
+			pSum_.g = 63;
 		pSum_.b = p1_.b + p2_.b;
+		if(p1_.b + p2_.b >= 32)
+			pSum_.b = 31;
 		pSum = pSum_;
 	}
 };
@@ -55,29 +61,35 @@ SC_MODULE(sum_method)
 // make sum of two pixels using thread
 SC_MODULE(sum_thread)
 {
-  sc_in<Pixel> p1;
+	sc_in<Pixel> p1;
 	sc_in<Pixel> p2;
 	sc_out<Pixel> pSum;
 
 	void compute_sum()
 	{
-    while(1)
-    {
-  		wait();
-      Pixel pSum_;
-  		Pixel p1_ = p1;
-  		Pixel p2_ = p2;
-  		pSum_.r = p1_.r + p2_.r;
-  		pSum_.g = p1_.g + p2_.g;
-  		pSum_.b = p1_.b + p2_.b;
-  		pSum = pSum_;
-    }
+	    while(1)
+		{
+			wait();
+			Pixel pSum_;
+			Pixel p1_ = p1;
+			Pixel p2_ = p2;
+			pSum_.r = p1_.r + p2_.r;
+			if(p1_.r + p2_.r >= 32)
+				pSum_.r = 31;
+			pSum_.g = p1_.g + p2_.g;
+			if(p1_.g + p2_.g >= 64)
+				pSum_.g = 63;
+			pSum_.b = p1_.b + p2_.b;
+			if(p1_.b + p2_.b >= 32)
+				pSum_.b = 31;
+			pSum = pSum_;
+		}
 	}
 
 	SC_CTOR(sum_thread)
 	{
 		SC_THREAD(compute_sum);
-    sensitive << p1 << p2;
+		sensitive << p1 << p2;
 	}
 };
 
@@ -103,17 +115,17 @@ int sc_main (int argc, char * argv[])
 
 	sig_p1 = p;
 	sig_p2 = p;
-	sc_start(5, SC_NS);
-	p.r = 1;
-	p.g = 2;
-	p.b = 3;
+	sc_start(3, SC_NS);
+	p.r = 31;
+	p.g = 63;
+	p.b = 31;
 	sig_p1 = p;
-	sc_start(5, SC_NS);
+	sc_start(3, SC_NS);
 	p.r = 9;
 	p.g = 8;
 	p.b = 7;
 	sig_p2 = p;
-	sc_start(5, SC_NS);
+	sc_start(3, SC_NS);
 
 	sc_close_vcd_trace_file(trace_f);
 	return 0;

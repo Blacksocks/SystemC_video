@@ -1,7 +1,7 @@
 #include <systemc.h>
 
 // Calculate greatest common divisor between x and y
-int pgcd_compute(unsigned int x, unsigned int y)
+unsigned int pgcd_compute(unsigned int x, unsigned int y)
 {
     int min = (x < y) ? x : y;
     int max = (x < y) ? y : x;

@@ -97,17 +97,26 @@ SC_MODULE(sum_thread)
 SC_MODULE(colors_method)
 {
 	sc_in<bool> clk;
+	sc_in<bool> rst;
 	sc_out<Pixel> p;
 
-	SC_CTOR(colors_method):clk("clk"), p("p")
+	SC_CTOR(colors_method):clk("clk"), rst("rst"), p("p")
 	{
 		SC_METHOD(inc_color);
-		sensitive << clk.pos();
+		sensitive << clk.pos() << rst.pos();
 	}
 
 	void inc_color()
 	{
+		bool rst_ = rst;
 		Pixel p_ = p;
+		if(rst_) {
+			p_.r = 0;
+			p_.g = 0;
+			p_.b = 0;
+			p = p_;
+			return;
+		}
 		if(p_.r < 31)
 			p_.r++;
 		else if(p_.g < 63)
@@ -122,12 +131,13 @@ SC_MODULE(colors_method)
 SC_MODULE(colors_thread)
 {
 	sc_in<bool> clk;
+	sc_in<bool> rst;
 	sc_out<Pixel> p;
 
-	SC_CTOR(colors_thread):clk("clk"), p("p")
+	SC_CTOR(colors_thread):clk("clk"), rst("rst"), p("p")
 	{
 		SC_THREAD(inc_color);
-		sensitive << clk.pos();
+		sensitive << clk.pos()<< rst.pos();
 	}
 
 	void inc_color()
@@ -135,7 +145,15 @@ SC_MODULE(colors_thread)
 		while(1)
 		{
 			wait();
+			bool rst_ = rst;
 			Pixel p_ = p;
+			if(rst_) {
+				p_.r = 0;
+				p_.g = 0;
+				p_.b = 0;
+				p = p_;
+				continue;
+			}
 			if(p_.r < 31)
 				p_.r++;
 			else if(p_.g < 63)
@@ -151,11 +169,13 @@ SC_MODULE(colors_thread)
 SC_MODULE(colors_cthread)
 {
 	sc_in<bool> clk;
+	sc_in<bool> rst;
 	sc_out<Pixel> p;
 
-	SC_CTOR(colors_cthread):clk("clk"), p("p")
+	SC_CTOR(colors_cthread):clk("clk"), rst("rst"), p("p")
 	{
 		SC_CTHREAD(inc_color, clk.pos());
+		sensitive << rst.pos();
 	}
 
 	void inc_color()
@@ -163,7 +183,15 @@ SC_MODULE(colors_cthread)
 		while(1)
 		{
 			wait();
+			bool rst_ = rst;
 			Pixel p_ = p;
+			if(rst_) {
+				p_.r = 0;
+				p_.g = 0;
+				p_.b = 0;
+				p = p_;
+				continue;
+			}
 			if(p_.r < 31)
 				p_.r++;
 			else if(p_.g < 63)
@@ -194,6 +222,9 @@ int sc_main (int argc, char * argv[])
 	// init de la clock
 	sc_clock clk("clk", 2, SC_NS);
 	sc_trace(trace_f, clk, "clk");
+	// reset init
+	sc_signal<bool> sig_rst;
+	sc_trace(trace_f, sig_rst, "rst");
 
 	// creation du module de somme
 	sum_thread sum_i("sum");
@@ -204,10 +235,15 @@ int sc_main (int argc, char * argv[])
 	colors_cthread colors_i("colors");
 	colors_i.clk(clk);
 	colors_i.p(sig_p3);
+	colors_i.rst(sig_rst);
 
+	// init signals
 	sig_p1 = p;
 	sig_p2 = p;
 	sig_p3 = p;
+	sig_rst = false;
+
+	// simulation
 	sc_start(64, SC_NS);
 	p.r = 9;
 	p.g = 8;
@@ -218,7 +254,10 @@ int sc_main (int argc, char * argv[])
 	p.g = 63;
 	p.b = 31;
 	sig_p2 = p;
-	sc_start(128, SC_NS);
+	sig_rst = true;
+	sc_start(1, SC_NS);
+	sig_rst = false;
+	sc_start(256, SC_NS);
 
 	sc_close_vcd_trace_file(trace_f);
 	return 0;

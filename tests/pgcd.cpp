@@ -1,5 +1,15 @@
 #include <systemc.h>
 
+// Calculate greatest common divisor between x and y
+int pgcd_compute(unsigned int x, unsigned int y)
+{
+    int min = (x < y) ? x : y;
+    int max = (x < y) ? y : x;
+    if(max == min)
+        return min;
+    return pgcd_compute(min, max - min);
+}
+
 // Calculate greatest common divisor between a and b
 SC_MODULE(mod_pgcd)
 {
@@ -24,20 +34,10 @@ SC_MODULE(mod_pgcd)
             ready = false;
             if(!valid)
                 continue;
-            sc_uint<8> min = (a < b) ? a : b;
-            sc_uint<8> max = (a < b) ? b : a;
-            while(max != min)
-            {
-                max -= min;
-                if(max < min)
-                {
-                    int tmp = max;
-                    max = min;
-                    min = tmp;
-                }
-                wait(1);
-            }
-            pgcd =  min;
+            wait(1);
+            sc_uint<8> a_ = a;
+            sc_uint<8> b_ = b;
+            pgcd = pgcd_compute(a_.to_uint(), b_.to_uint());
             ready = true;
         }
     }
@@ -94,16 +94,6 @@ SC_MODULE(mod_pgcd_rtl)
     }
 };
 
-// Calculate greatest common divisor between x and y
-int pgcd(unsigned int x, unsigned int y)
-{
-    int min = (x < y) ? x : y;
-    int max = (x < y) ? y : x;
-    if(max == min)
-        return min;
-    return pgcd(min, max - min);
-}
-
 int sc_main(int argc, char * argv[])
 {
     sc_trace_file * trace_f;
@@ -152,6 +142,7 @@ int sc_main(int argc, char * argv[])
     // second calcul
     sig_a = 42;
     sig_b = 63;
+    sc_start(2, SC_NS);
     sig_valid = true;
     sc_start(2, SC_NS);
     sig_valid = false;
@@ -163,8 +154,8 @@ int sc_main(int argc, char * argv[])
 
     sc_close_vcd_trace_file(trace_f);
 
-    cout << "pgcd(36,60): " << pgcd(36, 60) << endl;
-    cout << "pgcd(42,63): " << pgcd(42, 63) << endl;
-    cout << "pgcd(357,561): " << pgcd(357, 561) << endl;
+    cout << "pgcd(36,60): " << pgcd_compute(36, 60) << endl;
+    cout << "pgcd(42,63): " << pgcd_compute(42, 63) << endl;
+    cout << "pgcd(357,561): " << pgcd_compute(357, 561) << endl;
     return 0;
 }

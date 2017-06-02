@@ -117,12 +117,27 @@ SC_MODULE(colors_method)
 			p = p_;
 			return;
 		}
-		if(p_.r < 31)
+		if(p_.r < 31) {
 			p_.r++;
-		else if(p_.g < 63)
+			p = p_;
+			return;
+		}
+		else
+			p_.r = 0;
+		if(p_.g < 63) {
 			p_.g++;
-		else if(p_.b < 31)
+			p = p_;
+			return;
+		}
+		else
+			p_.g = 0;
+		if(p_.b < 31) {
 			p_.b++;
+			p = p_;
+			return;
+		}
+		else
+			p_.b = 0;
 		p = p_;
 	}
 };
@@ -154,12 +169,27 @@ SC_MODULE(colors_thread)
 				p = p_;
 				continue;
 			}
-			if(p_.r < 31)
+			if(p_.r < 31) {
 				p_.r++;
-			else if(p_.g < 63)
+				p = p_;
+				continue;
+			}
+			else
+				p_.r = 0;
+			if(p_.g < 63) {
 				p_.g++;
-			else if(p_.b < 31)
+				p = p_;
+				continue;
+			}
+			else
+				p_.g = 0;
+			if(p_.b < 31) {
 				p_.b++;
+				p = p_;
+				continue;
+			}
+			else
+				p_.b = 0;
 			p = p_;
 		}
 	}
@@ -192,12 +222,27 @@ SC_MODULE(colors_cthread)
 				p = p_;
 				continue;
 			}
-			if(p_.r < 31)
+			if(p_.r < 31) {
 				p_.r++;
-			else if(p_.g < 63)
+				p = p_;
+				continue;
+			}
+			else
+				p_.r = 0;
+			if(p_.g < 63) {
 				p_.g++;
-			else if(p_.b < 31)
+				p = p_;
+				continue;
+			}
+			else
+				p_.g = 0;
+			if(p_.b < 31) {
 				p_.b++;
+				p = p_;
+				continue;
+			}
+			else
+				p_.b = 0;
 			p = p_;
 		}
 	}
@@ -257,7 +302,7 @@ int sc_main (int argc, char * argv[])
 	sig_rst = true;
 	sc_start(1, SC_NS);
 	sig_rst = false;
-	sc_start(256, SC_NS);
+	sc_start(32*32*64, SC_NS);
 
 	sc_close_vcd_trace_file(trace_f);
 	return 0;

@@ -43,6 +43,57 @@ SC_MODULE(mod_pgcd)
     }
 };
 
+// Calculate greatest common divisor using methods
+SC_MODULE(mod_pgcd_rtl)
+{
+    sc_in<bool> clk;
+    sc_in<bool> valid;
+    sc_in<sc_uint<8> > a;
+    sc_in<sc_uint<8> > b;
+
+    sc_out<bool> ready;
+    sc_out<sc_uint<8> > pgcd;
+
+    sc_signal<sc_uint<8> > min;
+    sc_signal<sc_uint<8> > max;
+
+    // is calculating launched ?
+    bool state;
+
+    SC_CTOR(mod_pgcd_rtl):clk("clk"),valid("valid"),a("a"),b("b"),ready("ready"),pgcd("pgcd")
+    {
+        state = false;
+        SC_METHOD(compute_minmax);
+        sensitive << clk.pos() << valid.pos();
+    }
+
+    void compute_minmax()
+    {
+        ready = false;
+        if(!state)
+        {
+            if(!valid)
+                return;
+            min = (a < b) ? a : b;
+            max = (a < b) ? b : a;
+            state = true;
+            return;
+        }
+        sc_uint<8> max_ = max;
+        sc_uint<8> min_ = min;
+        pgcd = max_;
+        if(min_ == max_)
+        {
+            ready = true;
+            state = false;
+            return;
+        }
+        max_ = max_ - min_;
+        min = (max_ < min_) ? max_ : min_;
+        max = (max_ < min_) ? min_ : max_;
+    }
+};
+
 // Calculate greatest common divisor between x and y
 int pgcd(unsigned int x, unsigned int y)
 {
@@ -76,7 +127,7 @@ int sc_main(int argc, char * argv[])
     sc_trace(trace_f, sig_pgcd, "PGCD");
 
     // init PGCD module
-    mod_pgcd pgcd_i("pgcd");
+    mod_pgcd_rtl pgcd_i("pgcd");
     pgcd_i.clk(clk);
     pgcd_i.valid(sig_valid);
     pgcd_i.a(sig_a);
@@ -94,7 +145,10 @@ int sc_main(int argc, char * argv[])
     sc_start(2, SC_NS);
     sig_valid = false;
     while(!sig_ready)
-        sc_start(1, SC_NS);
+        sc_start(2, SC_NS);
+    sc_uint<8> res = sig_pgcd;
+    if(res == 12) cout << "First calcul finished successfuly" << endl;
+    else cout << "First calcul error: sig_pgcd = " << res << " instead of 12" << endl;
     // second calcul
     sig_a = 42;
     sig_b = 63;
@@ -103,6 +157,9 @@ int sc_main(int argc, char * argv[])
     sig_valid = false;
     while(!sig_ready)
         sc_start(1, SC_NS);
+    res = sig_pgcd;
+    if(res == 21) cout << "Second calcul finished successfuly" << endl;
+    else cout << "Second calcul error: sig_pgcd = " << res << " instead of 21" << endl;
 
     sc_close_vcd_trace_file(trace_f);
 

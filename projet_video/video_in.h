@@ -69,4 +69,3 @@ SC_MODULE(VIDEO_IN) {
 };
 
 #endif
-

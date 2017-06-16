@@ -1,3 +1,5 @@
 *.o
 *.d
 *.x
+*.vcd
+*_out.png

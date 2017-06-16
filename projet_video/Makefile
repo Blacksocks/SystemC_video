@@ -6,7 +6,7 @@ CXX       = g++
 
 CFLAGS   +=  -g -Wall
 CPPFLAGS  =  -isystem $(SYSTEMC)/include
-CXXFLAGS  =  -Wall -O2 -g
+CXXFLAGS  =  -Wall -O2 -g -std=c++11
 LDFLAGS   =  -g -L$(SYSTEMC)/lib-$(ARCH)
 LDLIBS    =  -lsystemc -pthread -lpng
 
@@ -17,11 +17,20 @@ OBJS       += $(patsubst %.c,%.o,$(SOURCES_C))
 EXE         = simulation.x
 
 DEPS = $(patsubst %.o,.%.d,$(OBJS))
+ARGS = 2000000
 
-all: $(EXE)
+.PHONY: all run display clean
+
+all: run
 
 $(EXE) : $(OBJS)
 	$(CXX) $(LDFLAGS) $(OBJS) -o $@  $(LDLIBS) 2>&1 | c++filt
+
+run: $(EXE)
+	./$< $(ARGS)
+
+display: simulation_trace.vcd
+	gtkwave $<
 
 clean :
 	-rm -f $(EXE)
@@ -30,6 +39,7 @@ clean :
 	-rm -f *.vcd
 	-rm -f *~ *_old
 	-rm -f core
+	-rm -f *_out.png
 
 .%.d:%.c
 	$(CC) $(CPPFLAGS) -MM -MF $@ -MT $(patsubst %.c,%.o,$<) $<

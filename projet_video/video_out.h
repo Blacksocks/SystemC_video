@@ -20,6 +20,9 @@ SC_MODULE(VIDEO_OUT)
 		SC_METHOD(read_stream);
 		sensitive << clk.pos();
 
+        current_image_number = 0;
+        idx_w = 0;
+        idx_h = 0;
         image = {IMG_W, IMG_H, pixels};
 	}
 

@@ -40,7 +40,7 @@ SC_MODULE(MEAN)
 	int                 idx_w;
 	int                 idx_h;
 	Image               image;
-    unsigned char       buff[2 * IMG_W + 3];
+    unsigned char       buff[SIZE_BUFF];
     int                 idx_buff;
     int                 start_buff;
     unsigned char       pixels[IMG_W * IMG_H];

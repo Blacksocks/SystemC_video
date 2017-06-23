@@ -5,7 +5,7 @@
 
 unsigned char MEAN::getBuff(int idx)
 {
-    while(idx > SIZE_BUFF)
+    while(idx >= SIZE_BUFF)
         idx -= SIZE_BUFF;
     return buff[idx];
 }
@@ -40,8 +40,8 @@ void MEAN::read_stream()
         return;
     unsigned char px = p_in;
     // buffer filling
-    buff[idx_buff++] = px;
-    if(idx_buff == SIZE_BUFF)
+    buff[idx_buff] = px;
+    if(++idx_buff == SIZE_BUFF)
         idx_buff = 0;
     // border
     if(idx_h == 0 || idx_h == IMG_H - 1 || idx_w == 0 || idx_w == IMG_W - 1)

@@ -4,9 +4,6 @@
 #include <systemc.h>
 #include "image.h"
 
-#define IMG_W 720
-#define IMG_H 576
-
 SC_MODULE(VIDEO_OUT)
 {
     sc_in<bool>          clk;

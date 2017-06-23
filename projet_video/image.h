@@ -3,17 +3,19 @@
 #define IMAGE_H
 #include <png.h>
 
+#define IMG_W 720
+#define IMG_H 576
 
 // Une image est un tableau de pixels (unsigned char, pour une image en niveaux de gris)
-// On ne définit pas sa taille à l'avance, cela permettra de faire des simulations avec des images plus petites...
+// On ne dï¿½finit pas sa taille ï¿½ l'avance, cela permettra de faire des simulations avec des images plus petites...
 typedef struct Image {
    int   width, height;
    unsigned char  *pixel;
 } Image;
 
 
-// Comme les fonctions suivantes sont appelées à partir de C++, il est nécessaire de mettre quelques
-// en-têtes spéciales, pour que le linker sache linker des fonctions C pures avec du C++
+// Comme les fonctions suivantes sont appelï¿½es ï¿½ partir de C++, il est nï¿½cessaire de mettre quelques
+// en-tï¿½tes spï¿½ciales, pour que le linker sache linker des fonctions C pures avec du C++
 
 #ifdef __cplusplus
 extern "C" {

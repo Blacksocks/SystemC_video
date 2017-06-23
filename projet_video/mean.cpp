@@ -33,6 +33,8 @@ void MEAN::read_stream()
         cout << "Saving image: " << name_s.str() << endl;
         image_write(&image, name_s.str().c_str());
         idx_h = 0;
+        start_buff = 0;
+        idx_buff = 0;
     }
     if(!h_in)
         return;

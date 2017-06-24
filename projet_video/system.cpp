@@ -45,8 +45,10 @@ int sc_main (int argc, char *argv[])
     sc_clock                        signal_clk("Clock", pix_period);
     sc_signal<bool>                 signal_resetn;
 
-    sc_signal<bool>                 signal_vref, signal_href;
-    sc_signal<unsigned char>        signal_pixel;
+    sc_signal<bool>                 signal_vref_in, signal_href_in;
+    sc_signal<unsigned char>        signal_pixel_in;
+    sc_signal<bool>                 signal_vref_out, signal_href_out;
+    sc_signal<unsigned char>        signal_pixel_out;
 
     /********************************************************
      *	Instanciation des modules
@@ -54,6 +56,7 @@ int sc_main (int argc, char *argv[])
 
     VIDEO_IN video_in("VIDEO_GEN");
     MEAN mean("VIDEO_MEAN");
+    VIDEO_OUT video_out("VIDEO_OUT");
 
     /*********************************************************
      *	Connexion des composants
@@ -61,15 +64,24 @@ int sc_main (int argc, char *argv[])
 
     video_in.clk        (signal_clk);
     video_in.reset_n    (signal_resetn);
-    video_in.href       (signal_href);
-    video_in.vref       (signal_vref);
-    video_in.pixel_out  (signal_pixel);
+    video_in.href       (signal_href_in);
+    video_in.vref       (signal_vref_in);
+    video_in.pixel_out  (signal_pixel_in);
 
-    mean.clk       (signal_clk);
-    mean.reset_n   (signal_resetn);
-    mean.h_in      (signal_href);
-    mean.v_in      (signal_vref);
-    mean.p_in      (signal_pixel);
+    mean.clk            (signal_clk);
+    mean.reset_n        (signal_resetn);
+    mean.h_in           (signal_href_in);
+    mean.v_in           (signal_vref_in);
+    mean.p_in           (signal_pixel_in);
+    mean.h_out          (signal_href_out);
+    mean.v_out          (signal_vref_out);
+    mean.p_out          (signal_pixel_out);
+
+    video_out.clk       (signal_clk);
+    video_out.reset_n   (signal_resetn);
+    video_out.href      (signal_href_out);
+    video_out.vref      (signal_vref_out);
+    video_out.pixel_in  (signal_pixel_out);
 
     /*********************************************************
      *	Traces
@@ -87,9 +99,12 @@ int sc_main (int argc, char *argv[])
     TRACE( signal_resetn );
 
     /* chronogrammes video */
-    TRACE( signal_href );
-    TRACE( signal_vref );
-    TRACE( signal_pixel );
+    TRACE( signal_href_in );
+    TRACE( signal_vref_in );
+    TRACE( signal_pixel_in );
+    TRACE( signal_href_out );
+    TRACE( signal_vref_out );
+    TRACE( signal_pixel_out );
 
 #undef TRACE
 

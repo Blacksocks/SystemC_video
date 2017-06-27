@@ -19,7 +19,7 @@ EXE         = simulation.x
 DEPS = $(patsubst %.o,.%.d,$(OBJS))
 ARGS = 3000000
 
-.PHONY: all run display clean
+.PHONY: all run display clean compare
 
 all: run
 
@@ -31,6 +31,12 @@ run: $(EXE)
 
 display: simulation_trace.vcd
 	gtkwave $<
+
+compare:
+	convert wallace00.png gray:imgIn.bin
+	convert img_00_out.png gray:imgOut.bin
+	hexdiff imgIn.bin imgOut.bin
+	rm imgIn.bin imgOut.bin
 
 clean :
 	-rm -f $(EXE)

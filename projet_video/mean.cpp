@@ -85,11 +85,23 @@ void MEAN::read_stream()
             value += getBuff(start_buff + 2 * IMG_W + 2);
             write_buff[idx_write_buff] = value / 9;
         }
-        if(++idx_write_buff >= SIZE_BUFF)
-            idx_write_buff = 0;
-        if(idx_h > 2 || (idx_h == 2 && idx_w > 1))
-            if(++start_buff == SIZE_BUFF)
-                start_buff = 0;
+        if(idx_w != 0)
+        {
+            if(++idx_write_buff >= SIZE_BUFF)
+                idx_write_buff = 0;
+            if(idx_h > 2 || (idx_h == 2 && idx_w > 1))
+                if(++start_buff == SIZE_BUFF)
+                    start_buff = 0;
+        }
+        if(idx_w == IMG_W - 1)
+        {
+            write_buff[idx_write_buff] = getBuff(idx_buff + 1 - IMG_W - 2);
+            if(++idx_write_buff >= SIZE_BUFF)
+                idx_write_buff = 0;
+            if(idx_h > 2 || (idx_h == 2 && idx_w > 1))
+                if(++start_buff == SIZE_BUFF)
+                    start_buff = 0;
+        }
     }
     idx_w++;
 }
@@ -106,8 +118,8 @@ void MEAN::write_stream()
         v_out = 1;
         while(idx_h_write != IMG_H)
         {
-            p_out = getWriteBuff(start_write_buff++);
-            if(start_write_buff == SIZE_BUFF)
+            p_out = getWriteBuff(start_write_buff);
+            if(++start_write_buff == SIZE_BUFF)
                 start_write_buff = 0;
             idx_w_write++;
             wait();

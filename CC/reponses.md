@@ -107,4 +107,5 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
 
 ---
 On peut se servir d'un SC_THREAD pour modéliser du RTL mais il faut bien noter que l'implémentation RTL n'aura rien a voir avec des thread niveau logiciel.
+Le niveau RTL est exécuté en permancance, il faut donc faire attention en le modélisant avec des SC_THREAD. 
 ---

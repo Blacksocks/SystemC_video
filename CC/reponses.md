@@ -22,7 +22,7 @@ Donnez la liste de ces types (les grandes familles) en expliquant dans quels cas
 Pour travailler sur un entier de XXbits, on peut utiliser des
 - intXX_t
 - sc_int<XX>
-Les sc_int<XX> sont plus facilement utilisés lorsqu'il faut effectuer des calculs bit à bit dessus. Sinon, il est préférable d'utiliser des intXX_t.
+Les sc_int<XX> sont plus facilement utilisés lorsqu'il faut effectuer des calculs bit à bit dessus. Sinon, il est préférable d'utiliser des intXX_t venant du C.
 ---
 
 ### Question 2
@@ -30,7 +30,7 @@ Les sc_int<XX> sont plus facilement utilisés lorsqu'il faut effectuer des calcu
 Pourquoi peut-on connecter *directement* la sortie (`sc_out<>`) d'un module Ã  la sortie d'un autre module mais pas Ã  une entrÃ©e (`sc_in<>`)?
 
 ---
-Pour connecter la sortie d'un module à l'entrée d'un autre, il faut utiliser un signal (par exemple) entre car il faut modéliser le caractère temporel des signaux électriques. Il n'y a cependant pas cette contrainte lorsque deux sorties sont liées.
+Pour connecter la sortie d'un module à l'entrée d'un autre, il faut utiliser un signal (par exemple) entre, car il faut modéliser le caractère temporel des signaux électriques. Il n'y a cependant pas cette contrainte lorsque deux sorties sont liées.
 ---
 
 ### Question 3
@@ -106,5 +106,5 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
 
 
 ---
-On peut se servir d'un SC_THREAD pour modéliser du RTL mais il faut bien noter que l'implémentation RTL n'aura rien a voir avec des thread niveau logiciel. 
+On peut se servir d'un SC_THREAD pour modéliser du RTL mais il faut bien noter que l'implémentation RTL n'aura rien a voir avec des thread niveau logiciel.
 ---

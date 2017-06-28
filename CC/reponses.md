@@ -1,6 +1,6 @@
 ---
 lang      : fr
-title     : ContrÃ´le de connaissances SE207 "SystemC"
+title     : Controle de connaissances SE207 "SystemC"
 date      : 28 juin 2017
 ---
 
@@ -19,18 +19,10 @@ En SystemC, pour modÃ©liser des calculs sur des entiers signÃ©s, plusieurs t
 Donnez la liste de ces types (les grandes familles) en expliquant dans quels cas il est prÃ©fÃ©rable d'utiliser l'un plutÃ´t que l'autre.
 
 ---
-
-*Ceci est un exemple de rÃ©ponse. **Merci d'effacer ce paragraphe** (mais de **laisser les groupes de trois tirets et les lignes vides avant et aprÃ¨s eux**) lorsque vous y Ã©crirez la vÃ´tre.*
-
-- `X` ceci est X
-- `Y` ceci est Y
-
-```{.cpp}
-// ceci est un exemple de code
-int main() {
-   return 0;
-}
-```
+Pour travailler sur un entier de XXbits, on peut utiliser des
+- intXX_t
+- sc_int<XX>
+Les sc_int<XX> sont plus facilement utilisés lorsqu'il faut effectuer des calculs bit à bit dessus. Sinon, il est préférable d'utiliser des intXX_t.
 ---
 
 ### Question 2
@@ -38,7 +30,7 @@ int main() {
 Pourquoi peut-on connecter *directement* la sortie (`sc_out<>`) d'un module Ã  la sortie d'un autre module mais pas Ã  une entrÃ©e (`sc_in<>`)?
 
 ---
-
+Pour connecter la sortie d'un module à l'entrée d'un autre, il faut utiliser un signal (par exemple) entre car il faut modéliser le caractère temporel des signaux électriques. Il n'y a cependant pas cette contrainte lorsque deux sorties sont liées.
 ---
 
 ### Question 3
@@ -48,7 +40,8 @@ Pourquoi peut-on connecter *directement* la sortie (`sc_out<>`) d'un module Ã  
 
 
 ---
-
+- Etant donné qu'une SC_METHOD prend la main sur la simulation, une boucle infinie à l'intérieur d'une SC_METHOD bloquerait la simulation. Il faut utiliser un SC_THREAD par exemple pour solutionner ce problème.
+- Si la fonction wait est appelée, la simulation pourra reprendre mais elle sera à nouveau bloquée à la reprise de la SC_METHOD.
 ---
 
 ### Question 4
@@ -61,8 +54,6 @@ Dans une premiÃ¨re implÃ©mentation, nous utilisons un `sc_mutex` pour synchr
 
 ```{.cpp}
     // Thread 1
-    step1_end_mutex.lock();
-    // Ã©tape 1 du traitement
     step1_end_mutex.lock();
     â€¦
     step1_end_mutex.unlock();
@@ -101,7 +92,9 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
     * Voyez-vous des diffÃ©rences quant Ã  la prÃ©cision temporelle des deux implÃ©mentations?
 
 ---
-
+- Dans le premier cas, un même mutex est lock par les deux thread (d'abord la thread 1, puis le n 2). Lorsque le thread 1 relache enfin le mutex, on sait où se trouve les deux thread, la synchronisation est faite !
+- Dans la seconde implementation, le thread 2 utilise un signal partagé par les deux thread pour se tenir informé de l'état de l'autre thread.
+- La première version est asynchrone, contrairement à l'autre, ce qui est une différence majeure. Aussi, cette 1ere version utilise des mutex, ce qui est relativement lourd à utiliser pour faire ce travail. 
 ---
 
 

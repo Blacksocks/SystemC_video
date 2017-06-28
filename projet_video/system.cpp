@@ -43,9 +43,6 @@ int sc_main (int argc, char *argv[])
     sc_clock                        signal_clk("Clock", pix_period);
     sc_signal<bool>                 signal_resetn;
 
-    sc_signal<bool>                 signal_vref_in, signal_href_in;
-    sc_signal<unsigned char>        signal_pixel_in;
-
     /********************************************************
      *	Instanciation des modules
      *******************************************************/
@@ -62,48 +59,30 @@ int sc_main (int argc, char *argv[])
 
     video_in.clk        (signal_clk);
     video_in.reset_n    (signal_resetn);
-    video_in.href       (signal_href_in);
-    video_in.vref       (signal_vref_in);
-    video_in.pixel_out  (signal_pixel_in);
-
     video_out.clk       (signal_clk);
     video_out.reset_n   (signal_resetn);
 
-    sc_signal<bool>             signal_vref[nb_filters];
-    sc_signal<bool>             signal_href[nb_filters];
-    sc_signal<unsigned char>    signal_pixel[nb_filters];
+    sc_signal<bool>             signal_vref[nb_filters + 1];
+    sc_signal<bool>             signal_href[nb_filters + 1];
+    sc_signal<unsigned char>    signal_pixel[nb_filters + 1];
 
-    if(nb_filters == 0)
+    video_in.href        (signal_href [0]);
+    video_in.vref        (signal_vref [0]);
+    video_in.pixel_out   (signal_pixel[0]);
+    for(int i = 0; i < nb_filters; i++)
     {
-        video_out.href      (signal_href_in);
-        video_out.vref      (signal_vref_in);
-        video_out.pixel_in  (signal_pixel_in);
+        filter[i]->clk     (signal_clk);
+        filter[i]->reset_n (signal_resetn);
+        filter[i]->h_in    (signal_href [i]);
+        filter[i]->v_in    (signal_vref [i]);
+        filter[i]->p_in    (signal_pixel[i]);
+        filter[i]->v_out   (signal_vref [i+1]);
+        filter[i]->h_out   (signal_href [i+1]);
+        filter[i]->p_out   (signal_pixel[i+1]);
     }
-    else
-    {
-        filter[0]->h_in      (signal_href_in);
-        filter[0]->v_in      (signal_vref_in);
-        filter[0]->p_in      (signal_pixel_in);
-        for(int i = 0; i < nb_filters - 1; i++)
-        {
-            filter[i]->clk       (signal_clk);
-            filter[i]->reset_n   (signal_resetn);
-            filter[i]->v_out     (signal_vref [i]);
-            filter[i]->h_out     (signal_href [i]);
-            filter[i]->p_out     (signal_pixel[i]);
-            filter[i+1]->h_in    (signal_href [i]);
-            filter[i+1]->v_in    (signal_vref [i]);
-            filter[i+1]->p_in    (signal_pixel[i]);
-        }
-        filter[nb_filters - 1]->clk    (signal_clk);
-        filter[nb_filters - 1]->reset_n(signal_resetn);
-        filter[nb_filters - 1]->h_out  (signal_href [nb_filters - 1]);
-        filter[nb_filters - 1]->v_out  (signal_vref [nb_filters - 1]);
-        filter[nb_filters - 1]->p_out  (signal_pixel[nb_filters - 1]);
-        video_out.href                 (signal_href [nb_filters - 1]);
-        video_out.vref                 (signal_vref [nb_filters - 1]);
-        video_out.pixel_in             (signal_pixel[nb_filters - 1]);
-    }
+    video_out.href       (signal_href [nb_filters]);
+    video_out.vref       (signal_vref [nb_filters]);
+    video_out.pixel_in   (signal_pixel[nb_filters]);
 
     /*********************************************************
      *	Traces
@@ -117,13 +96,16 @@ int sc_main (int argc, char *argv[])
 #define TRACE(x) sc_trace(my_trace_file, x, #x)
 
     /* chronogrammes signaux CLK et NRESET */
-    TRACE( signal_clk );
-    TRACE( signal_resetn );
+    TRACE(signal_clk);
+    TRACE(signal_resetn);
 
     /* chronogrammes video */
-    TRACE( signal_href_in );
-    TRACE( signal_vref_in );
-    TRACE( signal_pixel_in );
+    TRACE(signal_href [0]);
+    TRACE(signal_vref [0]);
+    TRACE(signal_pixel[0]);
+    TRACE(signal_href [nb_filters]);
+    TRACE(signal_vref [nb_filters]);
+    TRACE(signal_pixel[nb_filters]);
 
 #undef TRACE
 

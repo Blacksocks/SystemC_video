@@ -22,7 +22,7 @@ Donnez la liste de ces types (les grandes familles) en expliquant dans quels cas
 Pour travailler sur un entier de XXbits, on peut utiliser des
 - intXX_t
 - sc_int<XX>
-Les sc_int<XX> sont plus facilement utilisés lorsqu'il faut effectuer des calculs bit à bit dessus. Sinon, il est préférable d'utiliser des intXX_t venant du C.
+Les sc_int<XX> sont plus facilement utilisés lorsqu'il faut effectuer des calculs bit à bit dessus. Sinon, il est préférable d'utiliser les intXX_t venant du C (ou int si la taille importe peu).
 ---
 
 ### Question 2
@@ -92,8 +92,8 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
     * Voyez-vous des diffÃ©rences quant Ã  la prÃ©cision temporelle des deux implÃ©mentations?
 
 ---
-- Dans le premier cas, un même mutex est lock par les deux thread (d'abord la thread 1, puis le n 2). Lorsque le thread 1 relache enfin le mutex, on sait où se trouve les deux thread, la synchronisation est faite !
-- Dans la seconde implementation, le thread 2 utilise un signal partagé par les deux thread pour se tenir informé de l'état de l'autre thread.
+- Dans le premier cas, un même mutex est lock par les deux threads (d'abord la thread 1, puis le n 2). Lorsque le thread 1 relache enfin le mutex, on sait où se trouve les deux thread, la synchronisation est faite !
+- Dans la seconde implementation, le thread 2 utilise un signal partagé par les deux threads pour se tenir informé de l'état de l'autre thread.
 - Les mutex utilisent des zones mémoire spécifiques qui sont limités. La deuxième version est appelé à chaque coup d'horloge alors que la 1ere se met en pause jusqu'au 'réveil'.
 - La première version est asynchrone, contrairement à l'autre, ce qui est une différence majeure.
 ---
@@ -106,6 +106,6 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
 
 
 ---
-On peut se servir d'un SC_THREAD pour modéliser du RTL mais il faut bien noter que l'implémentation RTL n'aura rien a voir avec des thread niveau logiciel.
-Le niveau RTL est exécuté en permancance, il faut donc faire attention en le modélisant avec des SC_THREAD. 
+On peut se servir d'un SC_THREAD pour modéliser du RTL mais il faut bien noter que l'implémentation RTL n'aura rien a voir avec des threads niveau logiciel.
+Le niveau RTL est exécuté en permancance, il faut donc faire attention en le modélisant avec des SC_THREAD.
 ---

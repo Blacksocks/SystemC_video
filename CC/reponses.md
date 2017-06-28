@@ -95,7 +95,7 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
 - Dans le premier cas, un même mutex est lock par les deux thread (d'abord la thread 1, puis le n 2). Lorsque le thread 1 relache enfin le mutex, on sait où se trouve les deux thread, la synchronisation est faite !
 - Dans la seconde implementation, le thread 2 utilise un signal partagé par les deux thread pour se tenir informé de l'état de l'autre thread.
 - Les mutex utilisent des zones mémoire spécifiques qui sont limités. La deuxième version est appelé à chaque coup d'horloge alors que la 1ere se met en pause jusqu'au 'réveil'.
-- La première version est asynchrone, contrairement à l'autre, ce qui est une différence majeure. 
+- La première version est asynchrone, contrairement à l'autre, ce qui est une différence majeure.
 ---
 
 
@@ -106,5 +106,5 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
 
 
 ---
-
+On peut se servir d'un SC_THREAD pour modéliser du RTL mais il faut bien noter que l'implémentation RTL n'aura rien a voir avec des thread niveau logiciel. 
 ---

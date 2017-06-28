@@ -94,7 +94,8 @@ Dans une seconde implÃ©mentation nous utilisons un `sc_signal` dont nous exami
 ---
 - Dans le premier cas, un même mutex est lock par les deux thread (d'abord la thread 1, puis le n 2). Lorsque le thread 1 relache enfin le mutex, on sait où se trouve les deux thread, la synchronisation est faite !
 - Dans la seconde implementation, le thread 2 utilise un signal partagé par les deux thread pour se tenir informé de l'état de l'autre thread.
-- La première version est asynchrone, contrairement à l'autre, ce qui est une différence majeure. Aussi, cette 1ere version utilise des mutex, ce qui est relativement lourd à utiliser pour faire ce travail. 
+- Les mutex utilisent des zones mémoire spécifiques qui sont limités. La deuxième version est appelé à chaque coup d'horloge alors que la 1ere se met en pause jusqu'au 'réveil'.
+- La première version est asynchrone, contrairement à l'autre, ce qui est une différence majeure. 
 ---
 
 

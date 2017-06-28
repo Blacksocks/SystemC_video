@@ -1,12 +1,12 @@
-#ifndef MEAN_H
-#define MEAN_H
+#ifndef CONVOL_H
+#define CONVOL_H
 
 #define SIZE_BUFF   (2 * IMG_W + 3)
 
 #include <systemc.h>
 #include "image.h"
 
-SC_MODULE(MEAN)
+SC_MODULE(CONVOL)
 {
     sc_in<bool>           clk;
 	sc_in<bool>           reset_n;
@@ -17,9 +17,38 @@ SC_MODULE(MEAN)
 	sc_out<bool>          v_out;
 	sc_out<unsigned char> p_out;
 
-	SC_CTOR(MEAN)
+    SC_HAS_PROCESS(CONVOL);
+
+	CONVOL(sc_module_name n, float * filter):sc_module(n)
 	{
-		SC_METHOD(read_stream);
+        this->filter = filter;
+        contruct_init();
+	}
+
+    CONVOL(sc_module_name n, std::string filtername):sc_module(n)
+	{
+        filter = new float[9];
+        if(!filtername.compare("mean")) {
+            filter[0]=1./9;filter[1]=1./9;filter[2]=1./9;
+            filter[3]=1./9;filter[4]=1./9;filter[6]=1./9;
+            filter[6]=1./9;filter[7]=1./9;filter[8]=1./9;
+        }
+        else if(!filtername.compare("sobel")) {
+            filter[0]=2./9;filter[1]=2./9;filter[2]=0;
+            filter[3]=2./9;filter[4]=0./9;filter[6]=-2./9;
+            filter[6]=0./9;filter[7]=-2./9;filter[8]=-2./9;
+        }
+        else {
+            filter[0]=0;filter[1]=0;filter[2]=0;
+            filter[3]=0;filter[4]=1;filter[6]=0;
+            filter[6]=0;filter[7]=0;filter[8]=0;
+        }
+        contruct_init();
+	}
+
+    void contruct_init()
+    {
+        SC_METHOD(read_stream);
 		sensitive << clk.pos();
 
         SC_CTHREAD(write_stream, clk);
@@ -28,7 +57,7 @@ SC_MODULE(MEAN)
         idx_h = 0;
         idx_buff = 0;
         image = {IMG_W, IMG_H, pixels};
-	}
+    }
 
 	private:
 
@@ -54,6 +83,7 @@ SC_MODULE(MEAN)
     int                 idx_w_write;
     int                 idx_h_write;
     int                 start_writing;
+    float *             filter;
 };
 
-#endif // MEAN_H
+#endif // CONVOL_H

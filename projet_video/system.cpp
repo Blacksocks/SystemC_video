@@ -12,7 +12,7 @@
 #include <systemc.h>
 #include <sstream>
 #include "video_in.h"
-#include "mean.h"
+#include "convol.h"
 #include "video_out.h"
 
 /***************************************************
@@ -22,16 +22,14 @@
 int sc_main (int argc, char *argv[])
 {
     int	ncycles;
+    int nb_filters = argc - 2;
 
-    if (argc == 2) {
+    if (argc >= 2) {
         std::stringstream arg1(argv[1]);
         arg1 >> ncycles;
     } else {
-        cout
-           << endl
-           << "Le nombre de cycles de simulation doit être passé en argument (-1 pour une simulation illimitée)"
-           << endl
-           ;
+        cout << "Le nombre de cycles de simulation doit être passé en argument (-1 pour une simulation illimitée)" << endl
+             << "Les filtres a appliquer peuvent être passés en argument (ex: mean, sobel)" << endl;
         exit(1);
     }
 
@@ -47,15 +45,15 @@ int sc_main (int argc, char *argv[])
 
     sc_signal<bool>                 signal_vref_in, signal_href_in;
     sc_signal<unsigned char>        signal_pixel_in;
-    sc_signal<bool>                 signal_vref_out, signal_href_out;
-    sc_signal<unsigned char>        signal_pixel_out;
 
     /********************************************************
      *	Instanciation des modules
      *******************************************************/
 
     VIDEO_IN video_in("VIDEO_GEN");
-    MEAN mean("VIDEO_MEAN");
+    CONVOL * filter[nb_filters];
+    for(int i = 0; i < nb_filters; i++)
+        filter[i] = new CONVOL("VIDEO_CONVOL", argv[i + 2]);
     VIDEO_OUT video_out("VIDEO_OUT");
 
     /*********************************************************
@@ -68,20 +66,44 @@ int sc_main (int argc, char *argv[])
     video_in.vref       (signal_vref_in);
     video_in.pixel_out  (signal_pixel_in);
 
-    mean.clk            (signal_clk);
-    mean.reset_n        (signal_resetn);
-    mean.h_in           (signal_href_in);
-    mean.v_in           (signal_vref_in);
-    mean.p_in           (signal_pixel_in);
-    mean.h_out          (signal_href_out);
-    mean.v_out          (signal_vref_out);
-    mean.p_out          (signal_pixel_out);
-
     video_out.clk       (signal_clk);
     video_out.reset_n   (signal_resetn);
-    video_out.href      (signal_href_out);
-    video_out.vref      (signal_vref_out);
-    video_out.pixel_in  (signal_pixel_out);
+
+    sc_signal<bool>             signal_vref[nb_filters];
+    sc_signal<bool>             signal_href[nb_filters];
+    sc_signal<unsigned char>    signal_pixel[nb_filters];
+
+    if(nb_filters == 0)
+    {
+        video_out.href      (signal_href_in);
+        video_out.vref      (signal_vref_in);
+        video_out.pixel_in  (signal_pixel_in);
+    }
+    else
+    {
+        filter[0]->h_in      (signal_href_in);
+        filter[0]->v_in      (signal_vref_in);
+        filter[0]->p_in      (signal_pixel_in);
+        for(int i = 0; i < nb_filters - 1; i++)
+        {
+            filter[i]->clk       (signal_clk);
+            filter[i]->reset_n   (signal_resetn);
+            filter[i]->v_out     (signal_vref [i]);
+            filter[i]->h_out     (signal_href [i]);
+            filter[i]->p_out     (signal_pixel[i]);
+            filter[i+1]->h_in    (signal_href [i]);
+            filter[i+1]->v_in    (signal_vref [i]);
+            filter[i+1]->p_in    (signal_pixel[i]);
+        }
+        filter[nb_filters - 1]->clk    (signal_clk);
+        filter[nb_filters - 1]->reset_n(signal_resetn);
+        filter[nb_filters - 1]->h_out  (signal_href [nb_filters - 1]);
+        filter[nb_filters - 1]->v_out  (signal_vref [nb_filters - 1]);
+        filter[nb_filters - 1]->p_out  (signal_pixel[nb_filters - 1]);
+        video_out.href                 (signal_href [nb_filters - 1]);
+        video_out.vref                 (signal_vref [nb_filters - 1]);
+        video_out.pixel_in             (signal_pixel[nb_filters - 1]);
+    }
 
     /*********************************************************
      *	Traces
@@ -102,9 +124,6 @@ int sc_main (int argc, char *argv[])
     TRACE( signal_href_in );
     TRACE( signal_vref_in );
     TRACE( signal_pixel_in );
-    TRACE( signal_href_out );
-    TRACE( signal_vref_out );
-    TRACE( signal_pixel_out );
 
 #undef TRACE
 

@@ -17,7 +17,7 @@ OBJS       += $(patsubst %.c,%.o,$(SOURCES_C))
 EXE         = simulation.x
 
 DEPS = $(patsubst %.o,.%.d,$(OBJS))
-ARGS = 3000000
+ARGS = 3000000 sobel mean
 
 .PHONY: all run display clean compare
 

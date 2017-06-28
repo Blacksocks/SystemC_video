@@ -1,26 +1,26 @@
 #include <cstdio>
 #include <sstream>
 #include <iomanip>
-#include "mean.h"
+#include "convol.h"
 
-unsigned char MEAN::getBuff(int idx)
+unsigned char CONVOL::getBuff(int idx)
 {
     return buff[(idx + SIZE_BUFF) % SIZE_BUFF];
 }
 
-unsigned char MEAN::getWriteBuff(int idx)
+unsigned char CONVOL::getWriteBuff(int idx)
 {
     return write_buff[(idx + SIZE_BUFF) % SIZE_BUFF];
 }
 
-void MEAN::init()
+void CONVOL::init()
 {
     idx_h = 0;
     start_buff = 0;
     idx_buff = 0;
 }
 
-void MEAN::init_write()
+void CONVOL::init_write()
 {
     start_write_buff = 0;
     idx_write_buff = 0;
@@ -29,7 +29,7 @@ void MEAN::init_write()
     start_writing = 0;
 }
 
-void MEAN::read_stream()
+void CONVOL::read_stream()
 {
     if(!reset_n)
     {
@@ -73,17 +73,17 @@ void MEAN::read_stream()
         write_buff[idx_write_buff] = getBuff(idx_buff - IMG_W - 2);
         if(idx_w > 1 && idx_h > 1)
         {
-            // pixel mean value
-            int value = getBuff(start_buff);
-            value += getBuff(start_buff + 1);
-            value += getBuff(start_buff + 2);
-            value += getBuff(start_buff + IMG_W);
-            value += getBuff(start_buff + IMG_W + 1);
-            value += getBuff(start_buff + IMG_W + 2);
-            value += getBuff(start_buff + 2 * IMG_W);
-            value += getBuff(start_buff + 2 * IMG_W + 1);
-            value += getBuff(start_buff + 2 * IMG_W + 2);
-            write_buff[idx_write_buff] = value / 9;
+            // pixel filtered value
+            int value = getBuff(start_buff) * filter[0];
+            value += getBuff(start_buff + 1) * filter[1];
+            value += getBuff(start_buff + 2) * filter[2];
+            value += getBuff(start_buff + IMG_W) * filter[3];
+            value += getBuff(start_buff + IMG_W + 1) * filter[4];
+            value += getBuff(start_buff + IMG_W + 2) * filter[5];
+            value += getBuff(start_buff + 2 * IMG_W) * filter[6];
+            value += getBuff(start_buff + 2 * IMG_W + 1) * filter[7];
+            value += getBuff(start_buff + 2 * IMG_W + 2) * filter[8];
+            write_buff[idx_write_buff] = value;
         }
         if(idx_w != 0)
         {
@@ -106,7 +106,7 @@ void MEAN::read_stream()
     idx_w++;
 }
 
-void MEAN::write_stream()
+void CONVOL::write_stream()
 {
     while(1)
     {

@@ -1,35 +1,31 @@
 #include <cstdio>
 #include <sstream>
 #include <iomanip>
-#include "convol.h"
+#include "zoom.h"
 
-unsigned char CONVOL::getBuff(int idx)
+unsigned char ZOOM::getBuff(int idx)
 {
-    return buff[(idx + SIZE_BUFF) % SIZE_BUFF];
+    return buff[(idx + IMG_W) % IMG_W];
 }
 
-unsigned char CONVOL::getWriteBuff(int idx)
+unsigned char ZOOM::getWriteBuff(int idx)
 {
-    return write_buff[(idx + SIZE_BUFF) % SIZE_BUFF];
+    return write_buff[(idx + IMG_W / 2) % (IMG_W / 2)];
 }
 
-void CONVOL::init()
+void ZOOM::init()
 {
     idx_h = 0;
-    start_buff = 0;
-    idx_buff = 0;
 }
 
-void CONVOL::init_write()
+void ZOOM::init_write()
 {
-    start_write_buff = 0;
-    idx_write_buff = 0;
     idx_w_write = 0;
     idx_h_write = 0;
     start_writing = 0;
 }
 
-void CONVOL::read_stream()
+void ZOOM::read_stream()
 {
     if(!reset_n)
     {
@@ -44,20 +40,13 @@ void CONVOL::read_stream()
         idx_w = 0;
     }
     if(idx_h == IMG_H)
-    {
-        // send all buffer into write_buffer
-        while(start_buff != idx_buff)
-        {
-            write_buff[idx_write_buff] = getBuff(start_buff + IMG_W + 1);
-            if(++idx_write_buff >= SIZE_BUFF)
-                idx_write_buff = 0;
-            if(++start_buff >= SIZE_BUFF)
-                start_buff = 0;
-        }
         init();
-    }
     if(!h_in)
         return;
+    if(idx_h < IMG_H / 4 || idx_h >= 3 * IMG_H / 4)
+        return;
+    printf("idx_h: %d, IMG_H: %d\n", idx_h, IMG_H);
+    /*
     unsigned char px = p_in;
     // buffer filling
     buff[idx_buff] = px;
@@ -101,11 +90,11 @@ void CONVOL::read_stream()
                 if(++start_buff == SIZE_BUFF)
                     start_buff = 0;
         }
-    }
+    }*/
     idx_w++;
 }
 
-void CONVOL::write_stream()
+void ZOOM::write_stream()
 {
     while(1)
     {
@@ -115,25 +104,7 @@ void CONVOL::write_stream()
             wait();
         h_out = 1;
         v_out = 1;
-        while(idx_h_write != IMG_H)
-        {
-            p_out = getWriteBuff(start_write_buff);
-            if(++start_write_buff == SIZE_BUFF)
-                start_write_buff = 0;
-            idx_w_write++;
-            wait();
-            if(idx_w_write == IMG_W)
-            {
-                h_out = 0;
-                idx_w_write = 0;
-                idx_h_write++;
-                for(int i = 0; i < 154; i++)
-                    wait();
-                h_out = 1;
-            }
-            if(idx_h_write == 3)
-                v_out = 0;
-        }
+        // code
         start_writing = 0;
         init_write();
     }

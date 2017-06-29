@@ -5,27 +5,19 @@
 
 #include <systemc.h>
 #include "image.h"
+#include "filter.h"
 
-SC_MODULE(CONVOL)
+struct CONVOL : FILTER
 {
-    sc_in<bool>           clk;
-	sc_in<bool>           reset_n;
-	sc_in<bool>           h_in;
-	sc_in<bool>           v_in;
-	sc_in<unsigned char>  p_in;
-    sc_out<bool>          h_out;
-	sc_out<bool>          v_out;
-	sc_out<unsigned char> p_out;
-
     SC_HAS_PROCESS(CONVOL);
 
-	CONVOL(sc_module_name n, float * filter):sc_module(n)
+	CONVOL(sc_module_name n, float * filter):FILTER(n)
 	{
         this->filter = filter;
         contruct_init();
 	}
 
-    CONVOL(sc_module_name n, std::string filtername):sc_module(n)
+    CONVOL(sc_module_name n, std::string filtername):FILTER(n)
 	{
         filter = new float[9];
         if(!filtername.compare("mean")) {
@@ -46,33 +38,17 @@ SC_MODULE(CONVOL)
         contruct_init();
 	}
 
-    void contruct_init()
-    {
-        SC_METHOD(read_stream);
-		sensitive << clk.pos();
 
-        SC_CTHREAD(write_stream, clk);
-
-        idx_w = 0;
-        idx_h = 0;
-        idx_buff = 0;
-        image = {IMG_W, IMG_H, pixels};
-    }
 
 	private:
 
-    /* For bordure, I just copy the previous value
-    */
-	void          read_stream();
-	void          write_stream();
-	void          init();
-	void          init_write();
-    unsigned char getBuff(int idx);
-    unsigned char getWriteBuff(int idx);
+    void                read_stream();
+    void                write_stream();
+	void                init();
+	void                init_write();
+    unsigned char       getBuff(int idx);
+    unsigned char       getWriteBuff(int idx);
 
-	int                 idx_w;
-	int                 idx_h;
-	Image               image;
     unsigned char       buff[SIZE_BUFF];
     int                 idx_buff;
     int                 start_buff;

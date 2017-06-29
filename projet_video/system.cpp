@@ -13,6 +13,8 @@
 #include <sstream>
 #include "video_in.h"
 #include "convol.h"
+#include "zoom.h"
+#include "filter.h"
 #include "video_out.h"
 
 /***************************************************
@@ -48,9 +50,14 @@ int sc_main (int argc, char *argv[])
      *******************************************************/
 
     VIDEO_IN video_in("VIDEO_GEN");
-    CONVOL * filter[nb_filters];
-    for(int i = 0; i < nb_filters; i++)
-        filter[i] = new CONVOL("VIDEO_CONVOL", argv[i + 2]);
+    FILTER * filter[nb_filters];
+    for(int i = 0; i < nb_filters; i++){
+        std::string filtername = argv[i + 2];
+        if(!filtername.compare("zoom"))
+            filter[i] = new ZOOM("VIDEO_ZOOM");
+        else
+            filter[i] = new CONVOL("VIDEO_CONVOL", filtername);
+    }
     VIDEO_OUT video_out("VIDEO_OUT");
 
     /*********************************************************

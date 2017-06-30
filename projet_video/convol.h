@@ -38,8 +38,6 @@ struct CONVOL : FILTER
         contruct_init();
 	}
 
-
-
 	private:
 
     void                read_stream();
@@ -52,7 +50,6 @@ struct CONVOL : FILTER
     unsigned char       buff[SIZE_BUFF];
     int                 idx_buff;
     int                 start_buff;
-    unsigned char       pixels[IMG_W * IMG_H];
     unsigned char       write_buff[SIZE_BUFF];
     int                 start_write_buff;
     int                 idx_write_buff;

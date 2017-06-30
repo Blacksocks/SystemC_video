@@ -134,7 +134,6 @@ void CONVOL::write_stream()
             if(idx_h_write == 3)
                 v_out = 0;
         }
-        start_writing = 0;
         init_write();
     }
 }

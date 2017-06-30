@@ -107,12 +107,14 @@ int sc_main (int argc, char *argv[])
     TRACE(signal_resetn);
 
     /* chronogrammes video */
+    /*
     TRACE(signal_href [0]);
     TRACE(signal_vref [0]);
     TRACE(signal_pixel[0]);
     TRACE(signal_href [nb_filters]);
     TRACE(signal_vref [nb_filters]);
     TRACE(signal_pixel[nb_filters]);
+    */
 
 #undef TRACE
 
